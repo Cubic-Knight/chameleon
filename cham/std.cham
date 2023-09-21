@@ -1,0 +1,85 @@
+$"   :=   $: $"   $:   $; $"   :=   $& $;
+$"   "    $: $"   $"   $; $"   "    $& $;
+$"   !    $: $"   $!   $; $"   !    $& $;
+$"   ??   $: $"   $?   $; $"   ??   $& $;
+$"  join  $: $"   $,   $; $"  join  $& $;
+$"   ;    $: $"   $;   $; $"   ;    $& $;
+$"   <    $: $"   $<   $; $"   <    $& $;
+
+" $u := " $u ! " @ join ;
+
+" nop := ;
+" pop := " " " < " ?? " a " a ;
+" skip := " " " a " " " a " < ;
+
+" save_state := " ;
+    " " " save_state__curr_name " := " " " $n " ! " ;
+    " " " save_state__curr_value " := " " " $v " ! " ;
+    " " " save_state__curr_value " $& " ;
+    " " " save_state__nvar_name " := " " " save_state__op1 " " " ! " ?? " nop ;
+" save_state__op1 := " ;
+    " " " save_state__vvar_name " := " " " save_state__op2 " " " ! " ?? " nop ;
+" save_state__op2 := " ;
+    " " " save_state__curr_name " ! " := " " " save_state__curr_value " ! " " " ;
+    " " " " " " " save_state__nvar_name " ! " " " := " " " " " " " $n " " " ! " " " ;
+    " " " " " " " save_state__vvar_name " ! " " " := " " " " " " " $v " " " ! " " " ;
+    " " " " " " " save_state__vvar_name " ! " " " $& " " " ; ;
+
+" dup := save_state dup_name dup_value
+    " " " dup_value " ! " " " dup_1 " ?? " . " . ;
+" dup_1 := " ;
+    " " " dup_name " ! " := " " " dup_value " ! " " ;
+
+" streq := save_state streq_name streq_value
+    " " " streq_stack " ;= " ;
+    " " " streq_value2 " := " " " streq_value " ! " " " streq_take " ?? " b " a " ;
+    " " " streq_value2 " ! " " " streq_take " ?? " b " a " < " streq_false " streq_test " skip ;
+" streq_take := " < " ;
+    " " " streq_stack " := " " " streq_stack " ! " " ;
+" streq_false := " ;
+    " " " streq_name " ! " := " " " streq_value " ! " pop " pop " " " a " " " a " < ;
+" streq_test := " ;
+    " " " streq_name " ! " := " " " streq_value " ! " < ;
+
+" def := " ;
+    " " " def_get_fname " := " " " " " " " def_naming " " " ! " ?? " nop ;
+" def_naming := " ;
+    " " " def_gen " := " " " " " def_get_fname " " " :=
+        " " " save_state " def_get_fname " " " _name " join " def_get_fname " " " _value " join " ;
+    " " " def_branch_point " " " ! " ?? " nop ;
+" def_branch_point := " " " { " streq " def_get_code " def_get_params ;
+" def_get_params := " " " def_get_fparam " := " " " " " " " def_paraming " " " ! " ?? " nop ;
+" def_paraming := " ;
+    " " " def_gen " := " " " def_gen " !
+        " " " " " " " " " " " " " def_get_fname " " " __ " join " def_get_fparam " join " " " " " " " :=
+        " " " " " " " " " " " " " def_get_fname " " " _after__ " join " def_get_fparam " join
+        " " " " " " " " " " " " " " " ! " " " " " " " ?? " " " " " " " nop " " " ;
+        " " " " " def_get_fname " " " _after__ " join " def_get_fparam " join " " " := " " " " " " " ; " ;
+    " " " def_branch_point " " " ! " ?? " nop ;
+" def_get_code := " " " def_gen " := " " " def_gen " !
+    " " " " " " " " " " " " " def_get_fname " " " _name " join " " " " " " " ! " " " " " " " :=
+    " " " " " " " " " " " " " def_get_fname " " " _value " join " " " " " " " !
+    " def_coding ;
+" def_coding := " " " " " " " def_coding2 " " " pop " ?? ;
+" def_coding2 := " dup " " " } " streq " def_ending " def_coding3 ;
+" def_coding3 := " dup " " " @ " streq " skip " def_coding " def_escaping ;
+" def_escaping := " pop " def_get_fname " " " __ " join " " " nop " " " def_stuff " ?? " nop ;
+" def_stuff := " ! " join " " " " " " " ! " def_coding ;
+" def_ending := " pop " pop " " " ; " ; " def_gen " skip ;
+
+def import @fp {
+    " import_exec := " import_force " @fp ;
+    " import_mem__ " @fp join ! < skip import_exec ;
+}
+def import_force @fp {
+    " import_mem__ " @fp join := " 1 ;
+    " $p := " @fp ;
+    $f ;
+}
+" import_mem__std.cham := " 1 ;
+
+
+" text := " " " text " " " text_inner " ?? " nop ;
+" text_inner := " ! " dup " " " end_text " streq " text_destroy ;
+" text_destroy := " pop " skip ;
+" end_text := " " " end_text ;

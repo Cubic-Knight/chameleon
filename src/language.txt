@@ -1,0 +1,54 @@
+===== Keywords =====
+(setvar) :  swap buffers
+(skip)   :  next token is pushed as text
+(expand) :  previous token is evaluated, split and pushed back onto the stack
+(crazy)  :  rotation centered at the edge of the stack (radius 2)
+(join)   :  last 2 tokens are combined
+(eol)    :  do action and clear buffers
+(deref)  :  last token is stripped of one layer of pointing by mutation
+(iflt)   :  next token is ignored if not #2 < #1
+
+===== Sysvars =====
+// Keyword variables
+$: = (setvar)
+$" = (skip)
+$! = (expand)
+$? = (crazy)
+$, = (join)
+$; = (eol)
+$& = (deref)
+$< = (iflt)
+
+// Cache variables
+$n = (name of the last evaluated expression)
+$v = (value of the last evaluated expression)
+
+// IO  ----  NOT YET ENTIERLY IMPLEMENTED  (*)
+$i = (input from user, blocking)           (*)
+$I = (input from user, non-blocking)       (*)
+$o = (output to console)                   (*)
+$c = (console command)                     (*)
+$p = (file path)                           (*)
+$f = (contents of file at file path)       (*)
+
+// Lexer variables
+$u = (string of all unique characters)     (*)
+$s = (string of all separators)            (*)
+$S = (primary separator, default ' ')      (*)
+$$ = (sysvars prefix)                      (*)
+
+===== Std implementations =====
+nop = (empty variable, will disappear upon evaluation or expansion)
+pop : destroys the item on top of the stack
+skip : the next instruction will not be ran
+save_state [nvar] [vvar] : saves the current name in [nvar] and the current value in [vvar] (macro)
+dup : duplicates the value on top of the stack
+== : pops two values on top of the stack, skips the next instruction if they are not equal
+text : puts all following tokens on the stack, until it encounters a `end_text` token
+int10 : transforms the next token into the corresponding base 10 integer (invalid characters may give an unexpected result)
+
+===== Hello World programs =====
+(with std.cham) " output := text Hello, World! end_text ; " $o := " output ! ;
+(with std.cham) " output := text Hello, World! end_text := pop " $o := ;
+$" $o $: $" Hello, $" World! $;
+

@@ -1,0 +1,14 @@
+$" $p $: $" std.cham $; $f $;
+
+def print @t { " $o := " @t ! ; }
+
+" $o := " print ! ;
+" $o := " print_after__t ! ;
+" $o := ;
+" $o := " def_gen ! ;
+
+" output := " Hello, " World! ;
+
+print output
+print $u
+
